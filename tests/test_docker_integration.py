@@ -38,7 +38,8 @@ def shadowsocks_config():
     return config
 
 
-@pytest.mark.skipif(True, reason="Requires Docker daemon running")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 def test_xray_container_starts(xray_config, tmp_path_factory):
     """Integration test: Build and start Xray container"""
     tmpdir = tmp_path_factory.mktemp("xray")
@@ -57,7 +58,8 @@ def test_xray_container_starts(xray_config, tmp_path_factory):
         assert container.get_wrapped_container().status == "running"
 
 
-@pytest.mark.skipif(True, reason="Requires Docker daemon running")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 def test_shadowsocks_container_starts(shadowsocks_config, tmp_path_factory):
     """Integration test: Build and start Shadowsocks container"""
     tmpdir = tmp_path_factory.mktemp("shadowsocks")
@@ -90,7 +92,8 @@ def test_port_available():
     assert is_port_free(18388), "Port 18388 not available for Shadowsocks testing"
 
 
-@pytest.mark.skipif(True, reason="Requires Docker daemon running")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 def test_both_containers_together(xray_config, shadowsocks_config, tmp_path_factory):
     """Integration test: Run both containers simultaneously"""
     xray_tmpdir = tmp_path_factory.mktemp("xray_multi")
