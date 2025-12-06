@@ -28,6 +28,7 @@ apt-get install -y -qq \
     net-tools \
     gnupg \
     gpg \
+    unzip \
     python3 \
     python3-pip \
     python3-venv \
