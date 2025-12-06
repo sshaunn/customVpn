@@ -1,0 +1,54 @@
+# Secrets and credentials
+config.env
+*.key
+*.pem
+*.ppk
+*.ovpn
+
+# Generated configs
+/docker/xray/config.json
+/docker/shadowsocks/config.json
+/clients/*.json
+/clients/*.png
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+/docker/xray/logs/
+/docker/shadowsocks/logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.claude/
+
+# Backups
+*.tar.gz
+*.tar.gz.gpg
+backups/
+
+# Temporary
+tmp/
+temp/
+*.tmp
