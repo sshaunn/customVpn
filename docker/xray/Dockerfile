@@ -17,11 +17,6 @@ RUN ARCH=$(uname -m) \
     && chmod +x /usr/local/bin/xray \
     && rm /tmp/xray.zip
 
-RUN adduser -D -s /sbin/nologin -u 1000 xray \
-    && chown -R xray:xray /var/log/xray /etc/xray
-
-USER xray
-
 WORKDIR /etc/xray
 
 EXPOSE 443
