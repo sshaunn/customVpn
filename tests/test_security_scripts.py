@@ -126,19 +126,22 @@ def test_all_scripts_have_set_e(scripts_dir):
         assert "set -e" in content, f"{script_name} missing 'set -e'"
 
 
-@pytest.mark.skipif(True, reason="Requires VPS with root access")
+@pytest.mark.integration
+@pytest.mark.requires_vps
 def test_firewall_script_runs():
     """Test firewall script can be executed (VPS only)"""
     pass
 
 
-@pytest.mark.skipif(True, reason="Requires VPS with root access")
+@pytest.mark.integration
+@pytest.mark.requires_vps
 def test_ssh_script_runs():
     """Test SSH hardening script can be executed (VPS only)"""
     pass
 
 
-@pytest.mark.skipif(True, reason="Requires VPS with root access")
+@pytest.mark.integration
+@pytest.mark.requires_vps
 def test_fail2ban_script_runs():
     """Test fail2ban script can be executed (VPS only)"""
     pass

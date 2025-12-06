@@ -128,7 +128,8 @@ def test_docker_compose_volumes_defined():
     assert "xray-logs" in compose_config["volumes"]
 
 
-@pytest.mark.skipif(True, reason="Requires docker-compose installed")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 def test_docker_compose_validation():
     """Test docker-compose config validation"""
     compose_file = Path(__file__).parent.parent / "docker-compose.yml"

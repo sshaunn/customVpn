@@ -165,13 +165,15 @@ def test_all_deployment_scripts_have_shebang(project_root):
         assert first_line.startswith("#!/bin/bash"), f"{script_path} missing bash shebang"
 
 
-@pytest.mark.skipif(True, reason="Requires VPS environment")
+@pytest.mark.integration
+@pytest.mark.requires_vps
 def test_full_deployment():
     """Test full deployment workflow (VPS only)"""
     pass
 
 
-@pytest.mark.skipif(True, reason="Requires VPS environment")
+@pytest.mark.integration
+@pytest.mark.requires_vps
 def test_vps_setup_runs():
     """Test VPS setup script runs successfully (VPS only)"""
     pass

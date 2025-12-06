@@ -52,7 +52,8 @@ def test_files():
         }
 
 
-@pytest.mark.skipif(True, reason="Requires GPG installed and AWS credentials")
+@pytest.mark.integration
+@pytest.mark.requires_gpg
 def test_create_backup(backup_manager, test_files):
     """Test creating encrypted backup and uploading to S3"""
     s3_key = backup_manager.create_backup(
@@ -66,7 +67,8 @@ def test_create_backup(backup_manager, test_files):
     assert s3_key.endswith(".tar.gz.gpg")
 
 
-@pytest.mark.skipif(True, reason="Requires GPG installed and AWS credentials")
+@pytest.mark.integration
+@pytest.mark.requires_gpg
 def test_list_backups(backup_manager):
     """Test listing backups from S3"""
     backups = backup_manager.list_backups()
@@ -79,7 +81,8 @@ def test_list_backups(backup_manager):
         assert 'last_modified' in backups[0]
 
 
-@pytest.mark.skipif(True, reason="Requires GPG installed and AWS credentials")
+@pytest.mark.integration
+@pytest.mark.requires_gpg
 def test_restore_backup(backup_manager, test_files):
     """Test restoring backup from S3"""
     s3_key = backup_manager.create_backup(
@@ -101,7 +104,8 @@ def test_restore_backup(backup_manager, test_files):
         assert "users.json" in file_names
 
 
-@pytest.mark.skipif(True, reason="Requires GPG installed and AWS credentials")
+@pytest.mark.integration
+@pytest.mark.requires_gpg
 def test_delete_old_backups(backup_manager):
     """Test deleting old backups"""
     deleted = backup_manager.delete_old_backups(retention_days=365)

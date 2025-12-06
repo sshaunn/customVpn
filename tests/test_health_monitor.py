@@ -71,7 +71,8 @@ def test_check_port_exception(mock_socket_class, monitor):
     assert result is False
 
 
-@pytest.mark.skipif(True, reason="Requires Docker daemon")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 @patch('subprocess.run')
 def test_check_container_running(mock_run, monitor):
     """Test container check when running"""
@@ -82,7 +83,8 @@ def test_check_container_running(mock_run, monitor):
     assert result is True
 
 
-@pytest.mark.skipif(True, reason="Requires Docker daemon")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 @patch('subprocess.run')
 def test_check_container_stopped(mock_run, monitor):
     """Test container check when stopped"""
@@ -93,7 +95,8 @@ def test_check_container_stopped(mock_run, monitor):
     assert result is False
 
 
-@pytest.mark.skipif(True, reason="Requires Docker daemon")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 @patch('subprocess.run')
 def test_check_container_exception(mock_run, monitor):
     """Test container check handles exceptions"""
@@ -104,7 +107,8 @@ def test_check_container_exception(mock_run, monitor):
     assert result is False
 
 
-@pytest.mark.skipif(True, reason="Requires Docker daemon")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 @patch('subprocess.run')
 def test_restart_service_success(mock_run, monitor):
     """Test service restart success"""
@@ -116,7 +120,8 @@ def test_restart_service_success(mock_run, monitor):
     mock_run.assert_called_once()
 
 
-@pytest.mark.skipif(True, reason="Requires Docker daemon")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 @patch('subprocess.run')
 def test_restart_service_failure(mock_run, monitor):
     """Test service restart failure"""
@@ -196,7 +201,8 @@ def test_check_all_services(mock_check, monitor, capsys):
     assert "shadowsocks is healthy" in captured.out
 
 
-@pytest.mark.skipif(True, reason="Requires Docker daemon and live services")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 @patch.object(HealthMonitor, 'check_service')
 @patch.object(HealthMonitor, 'restart_service')
 def test_monitor_and_restart_healthy(mock_restart, mock_check, monitor_with_telegram):
@@ -210,7 +216,8 @@ def test_monitor_and_restart_healthy(mock_restart, mock_check, monitor_with_tele
     mock_restart.assert_not_called()
 
 
-@pytest.mark.skipif(True, reason="Requires Docker daemon and live services")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 @patch.object(HealthMonitor, 'check_service')
 @patch.object(HealthMonitor, 'restart_service')
 @patch('time.sleep')
@@ -233,7 +240,8 @@ def test_monitor_and_restart_down(mock_sleep, mock_restart, mock_check, monitor_
     mock_up.assert_called_once_with("xray")
 
 
-@pytest.mark.skipif(True, reason="Requires Docker daemon and live services")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 @patch.object(HealthMonitor, 'check_service')
 @patch.object(HealthMonitor, 'restart_service')
 @patch('time.sleep')

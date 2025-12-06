@@ -151,13 +151,15 @@ def test_readme_has_usage_instructions(terraform_dir):
     assert "terraform destroy" in content, "terraform destroy command missing"
 
 
-@pytest.mark.skipif(True, reason="Requires Terraform binary installed")
+@pytest.mark.integration
+@pytest.mark.requires_terraform
 def test_terraform_validate():
     """Test terraform validate passes (requires Terraform)"""
     pass
 
 
-@pytest.mark.skipif(True, reason="Requires AWS credentials")
+@pytest.mark.integration
+@pytest.mark.requires_aws
 def test_terraform_plan():
     """Test terraform plan succeeds (requires AWS)"""
     pass

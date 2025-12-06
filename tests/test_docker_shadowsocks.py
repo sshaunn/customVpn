@@ -57,7 +57,8 @@ def test_dockerfile_uses_ss_rust():
     assert "ssserver" in content, "Should use ssserver binary"
 
 
-@pytest.mark.skipif(True, reason="Requires Docker installed")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 def test_shadowsocks_docker_build():
     """Test that Shadowsocks Docker image builds successfully"""
     docker_dir = Path(__file__).parent.parent / "docker" / "shadowsocks"

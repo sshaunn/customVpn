@@ -57,7 +57,8 @@ def test_dockerignore_exists():
     assert dockerignore.exists(), ".dockerignore not found"
 
 
-@pytest.mark.skipif(True, reason="Requires Docker installed")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 def test_xray_docker_build():
     """Test that Xray Docker image builds successfully"""
     docker_dir = Path(__file__).parent.parent / "docker" / "xray"
@@ -80,7 +81,8 @@ def test_xray_docker_build():
         pytest.fail("Docker build timed out")
 
 
-@pytest.mark.skipif(True, reason="Requires Docker installed")
+@pytest.mark.integration
+@pytest.mark.requires_docker
 def test_xray_docker_run_with_config(test_config):
     """Test that Xray container starts with valid config"""
     with tempfile.TemporaryDirectory() as tmpdir:
