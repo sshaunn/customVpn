@@ -73,3 +73,13 @@
 - add - integration tests - 3 tests passed
 - update - gitignore - exclude users.json
 - status - task 3.2 complete - full CRUD with persistence
+
+### Task 3.3: Client Config Generator
+- add - vless share link - universal import format
+- add - shadowsocks share link - base64 encoded
+- add - json config - v2rayN/v2rayU/Qv2ray compatible
+- add - qr code generation - mobile scanning
+- add - routing rules - China direct, others proxy
+- add - client templates - 3 jinja2 templates
+- add - client tests - 7 tests passed
+- status - task 3.3 complete - multi-platform support
