@@ -29,13 +29,13 @@ class KeyGenerator:
             public_key = None
 
             for line in result.stdout.splitlines():
-                if "Private key:" in line:
-                    private_key = line.split("Private key:")[1].strip()
-                elif "Public key:" in line:
-                    public_key = line.split("Public key:")[1].strip()
+                if "PrivateKey:" in line or "Private key:" in line:
+                    private_key = line.split(":", 1)[1].strip()
+                elif "Password:" in line or "Public key:" in line:
+                    public_key = line.split(":", 1)[1].strip()
 
             if not private_key or not public_key:
-                raise ValueError("Failed to parse xray x25519 output")
+                raise ValueError(f"Failed to parse xray x25519 output: {result.stdout}")
 
             return {
                 "private_key": private_key,
