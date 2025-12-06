@@ -19,14 +19,7 @@ ssh -i "$SSH_KEY" "$SSH_USER@$VPS_IP" "cd customVpn && git pull"
 
 # Run integration tests on VPS
 echo "[2/3] Running tests on VPS..."
-ssh -i "$SSH_KEY" "$SSH_USER@$VPS_IP" << 'ENDSSH'
-set -e
-cd customVpn
-
-# Run tests with integration marker
-sudo /root/.local/bin/poetry run pytest tests/ -v -m integration --tb=short
-
-ENDSSH
+ssh -i "$SSH_KEY" "$SSH_USER@$VPS_IP" "cd customVpn && sudo /root/.local/bin/poetry run pytest tests/ -v -m integration --tb=short 2>&1"
 
 echo ""
 echo "[3/3] Test Summary"

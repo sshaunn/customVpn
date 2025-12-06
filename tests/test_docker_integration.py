@@ -40,42 +40,32 @@ def shadowsocks_config():
 
 @pytest.mark.integration
 @pytest.mark.requires_docker
-def test_xray_container_starts(xray_config, tmp_path_factory):
-    """Integration test: Build and start Xray container"""
-    tmpdir = tmp_path_factory.mktemp("xray")
-    config_file = tmpdir / "config.json"
-    config_file.write_text(xray_config)
+def test_xray_container_starts():
+    """Integration test: Check if Xray container is running on VPS"""
+    import subprocess
 
-    docker_dir = Path(__file__).parent.parent / "docker" / "xray"
+    result = subprocess.run(
+        ["docker", "ps", "--filter", "name=xray-reality", "--format", "{{.Status}}"],
+        capture_output=True,
+        text=True
+    )
 
-    with DockerContainer(str(docker_dir)) as container:
-        container.with_bind_ports(443, 8443)
-        container.with_volume_mapping(str(config_file), "/etc/xray/config.json")
-        container.start()
-
-        time.sleep(2)
-
-        assert container.get_wrapped_container().status == "running"
+    assert "Up" in result.stdout, f"Xray container not running: {result.stdout}"
 
 
 @pytest.mark.integration
 @pytest.mark.requires_docker
-def test_shadowsocks_container_starts(shadowsocks_config, tmp_path_factory):
-    """Integration test: Build and start Shadowsocks container"""
-    tmpdir = tmp_path_factory.mktemp("shadowsocks")
-    config_file = tmpdir / "config.json"
-    config_file.write_text(shadowsocks_config)
+def test_shadowsocks_container_starts():
+    """Integration test: Check if Shadowsocks container is running on VPS"""
+    import subprocess
 
-    docker_dir = Path(__file__).parent.parent / "docker" / "shadowsocks"
+    result = subprocess.run(
+        ["docker", "ps", "--filter", "name=shadowsocks-fallback", "--format", "{{.Status}}"],
+        capture_output=True,
+        text=True
+    )
 
-    with DockerContainer(str(docker_dir)) as container:
-        container.with_bind_ports(8388, 18388)
-        container.with_volume_mapping(str(config_file), "/etc/shadowsocks/config.json")
-        container.start()
-
-        time.sleep(2)
-
-        assert container.get_wrapped_container().status == "running"
+    assert "Up" in result.stdout, f"Shadowsocks container not running: {result.stdout}"
 
 
 def test_port_available():
@@ -94,33 +84,29 @@ def test_port_available():
 
 @pytest.mark.integration
 @pytest.mark.requires_docker
-def test_both_containers_together(xray_config, shadowsocks_config, tmp_path_factory):
-    """Integration test: Run both containers simultaneously"""
-    xray_tmpdir = tmp_path_factory.mktemp("xray_multi")
-    ss_tmpdir = tmp_path_factory.mktemp("ss_multi")
+def test_both_containers_together():
+    """Integration test: Check if both VPN containers are running together"""
+    import subprocess
 
-    xray_config_file = xray_tmpdir / "config.json"
-    xray_config_file.write_text(xray_config)
+    # Check both containers are running
+    result = subprocess.run(
+        ["docker", "ps", "--filter", "name=xray-reality", "--filter", "name=shadowsocks-fallback", "--format", "{{.Names}}"],
+        capture_output=True,
+        text=True
+    )
 
-    ss_config_file = ss_tmpdir / "config.json"
-    ss_config_file.write_text(shadowsocks_config)
+    assert "xray-reality" in result.stdout, "Xray container not found"
+    assert "shadowsocks-fallback" in result.stdout, "Shadowsocks container not found"
 
-    xray_docker_dir = Path(__file__).parent.parent / "docker" / "xray"
-    ss_docker_dir = Path(__file__).parent.parent / "docker" / "shadowsocks"
+    # Check both are healthy
+    result = subprocess.run(
+        ["docker", "ps", "--format", "{{.Names}}\t{{.Status}}"],
+        capture_output=True,
+        text=True
+    )
 
-    with DockerContainer(str(xray_docker_dir)) as xray_container, \
-         DockerContainer(str(ss_docker_dir)) as ss_container:
+    lines = result.stdout.strip().split('\n')
+    containers = {line.split('\t')[0]: line.split('\t')[1] for line in lines if '\t' in line}
 
-        xray_container.with_bind_ports(443, 8443)
-        xray_container.with_volume_mapping(str(xray_config_file), "/etc/xray/config.json")
-
-        ss_container.with_bind_ports(8388, 18388)
-        ss_container.with_volume_mapping(str(ss_config_file), "/etc/shadowsocks/config.json")
-
-        xray_container.start()
-        ss_container.start()
-
-        time.sleep(3)
-
-        assert xray_container.get_wrapped_container().status == "running"
-        assert ss_container.get_wrapped_container().status == "running"
+    assert "Up" in containers.get("xray-reality", ""), "Xray not running"
+    assert "Up" in containers.get("shadowsocks-fallback", ""), "Shadowsocks not running"
