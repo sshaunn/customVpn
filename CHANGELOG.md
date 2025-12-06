@@ -31,3 +31,11 @@
 - add - shadowsocks password - 32 byte base64
 - add - key generator tests - 6 passed, 2 skipped (no xray)
 - status - task 1.3 complete - all tests passing
+
+### Task 2.1: Xray Docker
+- add - xray dockerfile - Alpine 3.19 based
+- add - security features - non-root user, minimal packages
+- add - architecture support - x86_64 and arm64
+- add - dockerignore - exclude logs and configs
+- add - docker tests - 4 passed, 2 skipped (no docker)
+- status - task 2.1 complete - dockerfile validated
