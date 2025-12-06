@@ -86,10 +86,20 @@
 
 ### Task 4.1: S3 Backup System
 - add - s3 bucket created - vpn-backups-custom in Melbourne
-- add - config.env - AWS credentials configured
+- add - config.env - AWS and GPG configured
+- add - gpg passphrase - 32-byte secure random
 - add - s3 backup module - tar.gz creation and upload
-- add - gpg encryption - AES256 symmetric encryption
+- add - gpg encryption - AES256 symmetric encryption tested
 - add - backup restoration - download and decrypt
 - add - retention policy - auto-delete old backups
 - add - backup tests - 1 passed, 4 skipped (needs GPG on VPS)
 - status - task 4.1 complete - encrypted backups to S3
+
+### Task 5.1: Telegram Alerts
+- add - telegram bot - @alert_notify_me_bot configured
+- add - chat id - 7095291840
+- add - notifier module - formatted alerts with emojis
+- add - alert types - service down, restored, backup, deployment
+- add - test connection - 5 test messages sent successfully
+- add - telegram tests - 1 passed, 5 skipped
+- status - task 5.1 complete - real-time notifications working
