@@ -46,19 +46,24 @@ echo ""
 
 # Install Python dependencies
 echo "[1/6] Installing Python dependencies..."
-if command -v poetry &> /dev/null; then
-    poetry install --no-dev
-else
-    echo "Warning: Poetry not found, skipping dependency installation"
+POETRY_CMD="poetry"
+if [ ! -x "$(command -v poetry)" ]; then
+    if [ -x "/root/.local/bin/poetry" ]; then
+        POETRY_CMD="/root/.local/bin/poetry"
+    else
+        echo "Warning: Poetry not found, skipping dependency installation"
+        POETRY_CMD=""
+    fi
+fi
+
+if [ -n "$POETRY_CMD" ]; then
+    $POETRY_CMD install --no-root --only main 2>/dev/null || $POETRY_CMD install --no-root --without dev 2>/dev/null || $POETRY_CMD install --no-root
 fi
 echo ""
 
 # Generate VPN keys and configs
 echo "[2/6] Generating VPN keys and configurations..."
-poetry run python scripts/python/key_generator.py
-
-# Generate server configs
-poetry run python scripts/python/config_generator.py
+$POETRY_CMD run python scripts/python/setup_vpn.py
 echo ""
 
 # Build Docker images
@@ -105,7 +110,7 @@ echo ""
 
 # Send Telegram notification
 echo "Sending deployment notification..."
-poetry run python -c "
+$POETRY_CMD run python -c "
 from scripts.python.telegram_notifier import TelegramNotifier
 import os
 
@@ -126,10 +131,10 @@ echo "  - Xray VLESS+REALITY: port $XRAY_PORT"
 echo "  - Shadowsocks: port $SHADOWSOCKS_PORT"
 echo ""
 echo "Next Steps:"
-echo "  1. Add users: poetry run python scripts/python/user_manager.py add <username> <email>"
-echo "  2. Generate client configs: poetry run python scripts/python/client_config_generator.py"
+echo "  1. Add users: $POETRY_CMD run python scripts/python/user_manager.py add <username> <email>"
+echo "  2. Generate client configs: $POETRY_CMD run python scripts/python/client_config_generator.py"
 echo "  3. Setup monitoring cron: bash scripts/bash/setup_cron.sh"
-echo "  4. Create backup: poetry run python scripts/python/s3_backup.py"
+echo "  4. Create backup: $POETRY_CMD run python scripts/python/s3_backup.py"
 echo ""
 echo "View logs: docker compose logs -f"
 echo "Check status: docker compose ps"
