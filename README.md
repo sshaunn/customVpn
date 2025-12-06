@@ -25,8 +25,6 @@ python3 scripts/python/vpn_manager.py add-user yourname --platform macos
 
 ## Documentation
 
-- [RULES.md](RULES.md) - Coding standards
-- [TASKS.md](TASKS.md) - Development tasks
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Full deployment guide
 - [docs/USER_MANAGEMENT.md](docs/USER_MANAGEMENT.md) - Managing users
 - [docs/CLIENT_SETUP.md](docs/CLIENT_SETUP.md) - Client configuration
