@@ -69,8 +69,7 @@ def test_deploy_script_generates_configs(project_root):
     script = project_root / "deploy.sh"
     content = script.read_text()
 
-    assert "key_generator" in content, "No key generation"
-    assert "config_generator" in content, "No config generation"
+    assert "setup_vpn" in content, "No VPN setup script"
 
 
 def test_deploy_script_verifies_services(project_root):
