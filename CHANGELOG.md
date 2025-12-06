@@ -103,3 +103,63 @@
 - add - test connection - 5 test messages sent successfully
 - add - telegram tests - 1 passed, 5 skipped
 - status - task 5.1 complete - real-time notifications working
+
+### Task 5.2: Health Monitoring
+- add - health monitor - port and container status checks
+- add - auto-restart - docker restart on service failure
+- add - telegram integration - alerts on down and restored
+- add - monitoring modes - check-only and auto-restart
+- add - all services - xray port 443, shadowsocks port 8388
+- add - monitor tests - 10 passed, 8 skipped (need VPS)
+- status - task 5.2 complete - automated health checks with restart
+
+### Task 5.3: Cron Setup
+- add - setup script - install 5-min cron job
+- add - health check script - manual testing utility
+- add - log rotation - health checks to logs/health_monitor.log
+- status - task 5.3 complete - automated monitoring ready
+
+### Task 6.1: Firewall Setup
+- add - ufw script - setup_firewall.sh with port whitelist
+- add - default deny - block all incoming except allowed
+- add - port rules - 443 (xray), 8388 (shadowsocks), 2222 (ssh)
+- add - rate limiting - SSH connection throttling
+- add - firewall tests - 11 passed, 3 skipped (need VPS)
+- status - task 6.1 complete - firewall hardening ready
+
+### Task 6.2: SSH Hardening
+- add - ssh script - harden_ssh.sh with security config
+- add - port change - SSH moved to port 2222
+- add - key-only auth - password authentication disabled
+- add - root protection - prohibit-password for root
+- add - config backup - automatic backup before changes
+- add - validation - sshd config test before restart
+- status - task 6.2 complete - SSH fully hardened
+
+### Task 6.3: Fail2ban
+- add - fail2ban script - setup_fail2ban.sh with jail config
+- add - ssh protection - monitor port 2222 for brute force
+- add - ban policy - 3 attempts in 10 min = 30 min ban
+- add - ddos filter - connection flooding protection
+- add - auto-start - systemd enabled on boot
+- status - task 6.3 complete - intrusion prevention active
+
+### Task 7.1: VPS Setup Script
+- add - setup script - setup_vps.sh for Ubuntu 24.04
+- add - docker install - official repository with compose plugin
+- add - python stack - python3, pip, poetry
+- add - aws cli - for S3 backup operations
+- add - vpn user - non-root user with docker group
+- add - timezone - Asia/Singapore
+- add - deployment tests - 16 passed, 2 skipped (need VPS)
+- status - task 7.1 complete - VPS ready for deployment
+
+### Task 7.2: Master Deploy Script
+- add - deploy script - orchestrates full deployment
+- add - config validation - checks all required env vars
+- add - key generation - auto-generate VPN keys
+- add - docker build - build xray and shadowsocks images
+- add - service start - docker compose up with health checks
+- add - telegram notify - deployment success alert
+- add - verification - port checks for 443 and 8388
+- status - task 7.2 complete - one-command deployment ready

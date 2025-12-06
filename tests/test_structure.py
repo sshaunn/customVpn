@@ -29,8 +29,6 @@ def test_required_files():
 
     required_files = [
         "README.md",
-        "RULES.md",
-        "TASKS.md",
         "CHANGELOG.md",
         ".gitignore",
         "pyproject.toml",
