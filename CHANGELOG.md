@@ -163,3 +163,13 @@
 - add - telegram notify - deployment success alert
 - add - verification - port checks for 443 and 8388
 - status - task 7.2 complete - one-command deployment ready
+
+### Infrastructure as Code
+- add - terraform config - main.tf for EC2 instance
+- add - terraform variables - region, instance type, key name
+- add - terraform outputs - public IP, SSH command, instance details
+- add - security group - ports 22, 2222, 443, 8388 (TCP/UDP)
+- add - terraform gitignore - exclude state files and vars
+- add - terraform tests - 17 passed, 2 skipped (need Terraform binary)
+- update - project structure - added scripts/terraform directory
+- status - infrastructure as code complete - ready for VPS creation

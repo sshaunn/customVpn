@@ -8,6 +8,7 @@ def test_directory_structure():
     required_dirs = [
         "scripts/bash",
         "scripts/python",
+        "scripts/terraform",
         "templates",
         "docker/xray",
         "docker/shadowsocks",

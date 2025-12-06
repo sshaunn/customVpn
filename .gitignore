@@ -53,3 +53,14 @@ backups/
 tmp/
 temp/
 *.tmp
+
+# Terraform
+scripts/terraform/*.tfstate
+scripts/terraform/*.tfstate.*
+scripts/terraform/.terraform/
+scripts/terraform/.terraform.lock.hcl
+scripts/terraform/*.tfvars
+scripts/terraform/*.tfplan
+
+# VPS info
+vps_info.txt
