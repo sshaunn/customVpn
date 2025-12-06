@@ -63,3 +63,13 @@
 - add - dual container test - xray and shadowsocks together
 - add - port availability test - pre-flight checks
 - status - integration tests - 1 passed, 3 skipped (no docker daemon)
+
+### Task 3.2: User Management
+- add - user class - username, uuid, email, created_at
+- add - user manager - add, remove, get, list operations
+- add - json persistence - users.json storage
+- add - config integration - get_users_for_config method
+- add - user tests - 14 tests passed
+- add - integration tests - 3 tests passed
+- update - gitignore - exclude users.json
+- status - task 3.2 complete - full CRUD with persistence
