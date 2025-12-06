@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  xray:
+    build:
+      context: ./docker/xray
+      dockerfile: Dockerfile
+    container_name: xray-reality
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./docker/xray/config.json:/etc/xray/config.json:ro
+      - xray-logs:/var/log/xray
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - TZ=Asia/Singapore
+    healthcheck:
+      test: ["CMD-SHELL", "nc -zv 127.0.0.1 443 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  shadowsocks:
+    build:
+      context: ./docker/shadowsocks
+      dockerfile: Dockerfile
+    container_name: shadowsocks-fallback
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./docker/shadowsocks/config.json:/etc/shadowsocks/config.json:ro
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - TZ=Asia/Singapore
+    healthcheck:
+      test: ["CMD-SHELL", "nc -zv 127.0.0.1 8388 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower-autoupdate
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TZ=Asia/Singapore
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=86400
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+volumes:
+  xray-logs:
+    driver: local
