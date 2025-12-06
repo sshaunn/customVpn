@@ -23,3 +23,11 @@
 - add - config generator - Jinja2 rendering with validation
 - add - generator tests - 6 test cases passed
 - status - task 1.2 complete - all tests passing
+
+### Task 1.3: Key Generation
+- add - uuid generation - v4 format validation
+- add - reality keypair - x25519 via xray binary
+- add - short id generation - 8 char hex random
+- add - shadowsocks password - 32 byte base64
+- add - key generator tests - 6 passed, 2 skipped (no xray)
+- status - task 1.3 complete - all tests passing
