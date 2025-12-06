@@ -38,14 +38,16 @@ def test_notifier_initialization():
     assert "https://api.telegram.org/bot" in notifier.api_url
 
 
-@pytest.mark.skipif(True, reason="Requires real Telegram credentials")
+@pytest.mark.integration
+@pytest.mark.requires_telegram
 def test_send_message(notifier):
     """Test sending a simple message"""
-    result = notifier.send_message("Test message from pytest")
+    result = notifier.send_message("✅ Test message from pytest integration tests")
     assert result is True
 
 
-@pytest.mark.skipif(True, reason="Requires real Telegram credentials")
+@pytest.mark.integration
+@pytest.mark.requires_telegram
 def test_send_alert(notifier):
     """Test sending formatted alert"""
     result = notifier.send_alert(
@@ -56,21 +58,24 @@ def test_send_alert(notifier):
     assert result is True
 
 
-@pytest.mark.skipif(True, reason="Requires real Telegram credentials")
+@pytest.mark.integration
+@pytest.mark.requires_telegram
 def test_send_service_down_alert(notifier):
     """Test service down alert"""
     result = notifier.send_service_down_alert("Xray", 443)
     assert result is True
 
 
-@pytest.mark.skipif(True, reason="Requires real Telegram credentials")
+@pytest.mark.integration
+@pytest.mark.requires_telegram
 def test_send_backup_alert(notifier):
     """Test backup completion alert"""
     result = notifier.send_backup_alert("test-backup-20251206", 5.2, success=True)
     assert result is True
 
 
-@pytest.mark.skipif(True, reason="Requires real Telegram credentials")
+@pytest.mark.integration
+@pytest.mark.requires_telegram
 def test_connection(notifier):
     """Test Telegram connection"""
     result = notifier.test_connection()

@@ -76,39 +76,33 @@ def test_generate_reality_keypair_invalid_output():
             KeyGenerator.generate_reality_keypair()
 
 
-@pytest.mark.skipif(True, reason="Requires xray binary installed")
+@pytest.mark.integration
+@pytest.mark.requires_xray
 def test_generate_reality_keypair_real():
     """Test real key generation if xray is available"""
-    try:
-        keys = KeyGenerator.generate_reality_keypair()
+    keys = KeyGenerator.generate_reality_keypair()
 
-        assert "private_key" in keys
-        assert "public_key" in keys
-        assert len(keys["private_key"]) > 0
-        assert len(keys["public_key"]) > 0
-        assert keys["private_key"] != keys["public_key"]
-
-    except RuntimeError:
-        pytest.skip("xray binary not available")
+    assert "private_key" in keys
+    assert "public_key" in keys
+    assert len(keys["private_key"]) > 0
+    assert len(keys["public_key"]) > 0
+    assert keys["private_key"] != keys["public_key"]
 
 
-@pytest.mark.skipif(True, reason="Requires xray binary installed")
+@pytest.mark.integration
+@pytest.mark.requires_xray
 def test_generate_all_keys_real():
     """Test generating all keys at once if xray is available"""
-    try:
-        keys = KeyGenerator.generate_all_keys()
+    keys = KeyGenerator.generate_all_keys()
 
-        required_keys = [
-            "admin_uuid",
-            "reality_private_key",
-            "reality_public_key",
-            "reality_short_id",
-            "shadowsocks_password"
-        ]
+    required_keys = [
+        "admin_uuid",
+        "reality_private_key",
+        "reality_public_key",
+        "reality_short_id",
+        "shadowsocks_password"
+    ]
 
-        for key in required_keys:
-            assert key in keys, f"Missing key: {key}"
-            assert keys[key], f"Empty value for key: {key}"
-
-    except RuntimeError:
-        pytest.skip("xray binary not available")
+    for key in required_keys:
+        assert key in keys, f"Missing key: {key}"
+        assert keys[key], f"Empty value for key: {key}"
