@@ -39,3 +39,17 @@
 - add - dockerignore - exclude logs and configs
 - add - docker tests - 4 passed, 2 skipped (no docker)
 - status - task 2.1 complete - dockerfile validated
+
+### Task 2.2: Shadowsocks Docker
+- add - shadowsocks dockerfile - Alpine 3.19 with ss-rust
+- add - security features - non-root user
+- add - architecture support - x86_64 and arm64
+- add - ss tests - 5 passed, 1 skipped
+- status - task 2.2 complete - dockerfile validated
+
+### Task 2.3: Docker Integration Tests
+- add - testcontainers - Python Docker testing framework
+- add - integration tests - container build and run validation
+- add - dual container test - xray and shadowsocks together
+- add - port availability test - pre-flight checks
+- status - task 2.3 complete - 1 passed, 3 skipped (no docker daemon)
