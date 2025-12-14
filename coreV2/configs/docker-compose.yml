@@ -3,7 +3,8 @@ services:
     image: ghcr.io/xtls/xray-core:latest
     container_name: xray
     restart: unless-stopped
-    network_mode: host
+    expose:
+      - "10000"
     volumes:
       - ./configs/xray-config.json:/usr/local/etc/xray/config.json:ro
     command: run -c /usr/local/etc/xray/config.json
@@ -12,7 +13,9 @@ services:
     image: ghcr.io/shadowsocks/ssserver-rust:latest
     container_name: shadowsocks
     restart: unless-stopped
-    network_mode: host
+    ports:
+      - "8388:8388/tcp"
+      - "8388:8388/udp"
     volumes:
       - ./configs/shadowsocks-config.json:/etc/shadowsocks-rust/config.json:ro
 
@@ -20,7 +23,9 @@ services:
     image: nginx:alpine
     container_name: nginx
     restart: unless-stopped
-    network_mode: host
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
       - ./configs/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
