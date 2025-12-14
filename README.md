@@ -1,61 +1,41 @@
-# CustomVPN
+# CustomVPN V2
 
-Secure VPN solution for bypassing GFW using VLESS+REALITY and Shadowsocks.
+**Status**: V2 Rewrite in Progress
 
-## Quick Start
+Clean Python-based VPN deployment for bypassing GFW.
 
-```bash
-# 1. Configure
-cp config.env.template config.env
-nano config.env
-
-# 2. Deploy to VPS
-./deploy.sh
-
-# 3. Add user and get client config
-python3 scripts/python/vpn_manager.py add-user yourname --platform macos
-```
-
-## Requirements
-
-- VPS: Ubuntu 24.04 LTS, 1GB RAM, Singapore region
-- Python: 3.10+
-- Docker: 24.0+
-- AWS S3: For encrypted backups
-
-## Documentation
-
-- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Full deployment guide
-- [docs/USER_MANAGEMENT.md](docs/USER_MANAGEMENT.md) - Managing users
-- [docs/CLIENT_SETUP.md](docs/CLIENT_SETUP.md) - Client configuration
-
-## Architecture
-
-- Primary: VLESS + REALITY (port 443, SNI: www.apple.com)
-- Fallback: Shadowsocks-2022 (port 8388)
-- Monitoring: Health checks + Telegram alerts (real-time)
-- Backup: Encrypted to S3 Melbourne (daily)
+## Current Setup
+- **VPS**: Bandwagon 80.251.215.127 (user: shaun)
+- **Domain**: shaunstudio.vip
+- **Stack**: Python 3, Docker, Xray, Shadowsocks
+- **SSH**: `ssh customvpn`
 
 ## Project Structure
 
 ```
 customVpn/
-├── scripts/
-│   ├── bash/           # System operations
-│   └── python/         # VPN management tools
-├── templates/          # Jinja2 config templates
-├── docker/             # Container definitions
-├── clients/            # Client config outputs
-├── docs/               # Documentation
-└── tests/              # Test suite
+├── coreV2/              # V2 implementation (active)
+│   ├── TASKS_V2.md      # 14 tasks breakdown
+│   ├── CHANGELOG_V2.md  # V2 changelog
+│   ├── scripts/         # Python deployment scripts
+│   ├── configs/         # Config templates
+│   ├── docker/          # Dockerfiles
+│   └── tests/           # Unit tests
+├── config.env           # VPS credentials
+└── README.md            # This file
 ```
 
-## Security
+## Quick Start (V2)
 
-- SSH: Port 2222, key-only authentication
-- Firewall: UFW whitelist (443, 8388, 2222)
-- Secrets: Never committed, .gitignore enforced
-- Backups: GPG encrypted before S3 upload
+```bash
+cd coreV2
+# TODO: Coming soon
+python deploy.py
+```
+
+## Old Version (V1)
+
+The previous implementation has been cleaned up. See git history for reference.
 
 ## License
 
