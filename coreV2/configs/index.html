@@ -93,9 +93,116 @@
         <h2>About Us</h2>
         <p>With years of experience in digital innovation, we help businesses transform their online presence through cutting-edge technology and creative solutions.</p>
 
+        <h2>Try Our Demo Game</h2>
+        <div style="text-align: center; margin-top: 20px;">
+            <canvas id="gameCanvas" width="400" height="400" style="border: 2px solid #667eea; border-radius: 10px; background: #000;"></canvas>
+            <p style="margin-top: 10px; font-size: 0.9em;">Use Arrow Keys or WASD to move. Avoid the red obstacles!</p>
+            <p id="score" style="font-size: 1.2em; color: #667eea; font-weight: bold;">Score: 0</p>
+        </div>
+
         <footer>
             <p>&copy; 2025 Shaun Studio. All rights reserved.</p>
         </footer>
     </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let player = { x: 200, y: 350, size: 20, speed: 5 };
+        let obstacles = [];
+        let score = 0;
+        let gameOver = false;
+
+        // Create obstacles
+        function createObstacle() {
+            obstacles.push({
+                x: Math.random() * (canvas.width - 30),
+                y: -30,
+                width: 30,
+                height: 30,
+                speed: 2 + Math.random() * 3
+            });
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (gameOver) {
+                ctx.fillStyle = 'white';
+                ctx.font = '30px Arial';
+                ctx.fillText('Game Over!', 120, 200);
+                ctx.font = '20px Arial';
+                ctx.fillText('Refresh to restart', 120, 240);
+                return;
+            }
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+
+            // Update and draw obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles[i];
+                obs.y += obs.speed;
+
+                // Draw obstacle
+                ctx.fillStyle = '#ff4444';
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+
+                // Check collision
+                if (player.x < obs.x + obs.width &&
+                    player.x + player.size > obs.x &&
+                    player.y < obs.y + obs.height &&
+                    player.y + player.size > obs.y) {
+                    gameOver = true;
+                }
+
+                // Remove off-screen obstacles
+                if (obs.y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    score++;
+                    document.getElementById('score').textContent = 'Score: ' + score;
+                }
+            }
+
+            // Create new obstacles
+            if (Math.random() < 0.02) {
+                createObstacle();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Keyboard controls
+        let keys = {};
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        // Move player
+        setInterval(() => {
+            if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+                player.x = Math.max(0, player.x - player.speed);
+            }
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+                player.x = Math.min(canvas.width - player.size, player.x + player.speed);
+            }
+            if (keys['ArrowUp'] || keys['w'] || keys['W']) {
+                player.y = Math.max(0, player.y - player.speed);
+            }
+            if (keys['ArrowDown'] || keys['s'] || keys['S']) {
+                player.y = Math.min(canvas.height - player.size, player.y + player.speed);
+            }
+        }, 1000/60);
+
+        // Start game
+        gameLoop();
+    </script>
 </body>
 </html>
