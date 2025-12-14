@@ -244,7 +244,7 @@
         <h2 class="section-title">Interactive Demo</h2>
         <div class="game-container">
             <canvas id="gameCanvas" width="500" height="500"></canvas>
-            <p class="controls">Use Arrow Keys or WASD to move • Avoid red obstacles</p>
+            <p class="controls">WASD or Arrow Keys to move • SPACE to shoot • Destroy enemies!</p>
             <p id="score">Score: 0</p>
         </div>
     </section>
@@ -266,99 +266,201 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        let player = { x: 200, y: 350, size: 20, speed: 5 };
-        let obstacles = [];
+        let player = {
+            x: canvas.width / 2,
+            y: canvas.height - 80,
+            width: 40,
+            height: 40,
+            speed: 6,
+            color: '#667eea'
+        };
+
+        let bullets = [];
+        let enemies = [];
+        let particles = [];
         let score = 0;
         let gameOver = false;
+        let keys = {};
 
-        // Create obstacles
-        function createObstacle() {
-            obstacles.push({
-                x: Math.random() * (canvas.width - 30),
-                y: -30,
-                width: 30,
-                height: 30,
-                speed: 2 + Math.random() * 3
+        // Particle effect
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    size: Math.random() * 3 + 1,
+                    color: color,
+                    life: 1
+                });
+            }
+        }
+
+        // Create enemy
+        function createEnemy() {
+            enemies.push({
+                x: Math.random() * (canvas.width - 40),
+                y: -40,
+                width: 35,
+                height: 35,
+                speed: 1.5 + Math.random() * 2,
+                color: '#ff4444'
+            });
+        }
+
+        // Shoot bullet
+        function shoot() {
+            bullets.push({
+                x: player.x + player.width / 2 - 3,
+                y: player.y,
+                width: 6,
+                height: 15,
+                speed: 8,
+                color: '#00ffaa'
             });
         }
 
         // Game loop
         function gameLoop() {
             if (gameOver) {
-                ctx.fillStyle = 'white';
-                ctx.font = '30px Arial';
-                ctx.fillText('Game Over!', 120, 200);
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#667eea';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 20);
+
+                ctx.fillStyle = '#fff';
                 ctx.font = '20px Arial';
-                ctx.fillText('Refresh to restart', 120, 240);
+                ctx.fillText('Final Score: ' + score, canvas.width/2, canvas.height/2 + 20);
+                ctx.fillText('Press R to Restart', canvas.width/2, canvas.height/2 + 50);
                 return;
             }
 
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Clear with trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw player
-            ctx.fillStyle = '#667eea';
-            ctx.fillRect(player.x, player.y, player.size, player.size);
+            // Draw player (spaceship shape)
+            ctx.fillStyle = player.color;
+            ctx.beginPath();
+            ctx.moveTo(player.x + player.width/2, player.y);
+            ctx.lineTo(player.x, player.y + player.height);
+            ctx.lineTo(player.x + player.width, player.y + player.height);
+            ctx.closePath();
+            ctx.fill();
 
-            // Update and draw obstacles
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                let obs = obstacles[i];
-                obs.y += obs.speed;
+            // Draw and update bullets
+            bullets.forEach((bullet, i) => {
+                bullet.y -= bullet.speed;
 
-                // Draw obstacle
-                ctx.fillStyle = '#ff4444';
-                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                ctx.fillStyle = bullet.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = bullet.color;
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+                ctx.shadowBlur = 0;
 
-                // Check collision
-                if (player.x < obs.x + obs.width &&
-                    player.x + player.size > obs.x &&
-                    player.y < obs.y + obs.height &&
-                    player.y + player.size > obs.y) {
+                if (bullet.y < 0) bullets.splice(i, 1);
+            });
+
+            // Draw and update enemies
+            enemies.forEach((enemy, i) => {
+                enemy.y += enemy.speed;
+
+                ctx.fillStyle = enemy.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = enemy.color;
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+                ctx.shadowBlur = 0;
+
+                // Check bullet collision
+                bullets.forEach((bullet, bi) => {
+                    if (bullet.x < enemy.x + enemy.width &&
+                        bullet.x + bullet.width > enemy.x &&
+                        bullet.y < enemy.y + enemy.height &&
+                        bullet.y + bullet.height > enemy.y) {
+                        createParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, '#ff4444');
+                        enemies.splice(i, 1);
+                        bullets.splice(bi, 1);
+                        score += 10;
+                        document.getElementById('score').textContent = 'Score: ' + score;
+                    }
+                });
+
+                // Check player collision
+                if (player.x < enemy.x + enemy.width &&
+                    player.x + player.width > enemy.x &&
+                    player.y < enemy.y + enemy.height &&
+                    player.y + player.height > enemy.y) {
+                    createParticles(player.x + player.width/2, player.y + player.height/2, '#667eea');
                     gameOver = true;
                 }
 
-                // Remove off-screen obstacles
-                if (obs.y > canvas.height) {
-                    obstacles.splice(i, 1);
+                // Remove off-screen
+                if (enemy.y > canvas.height) {
+                    enemies.splice(i, 1);
                     score++;
                     document.getElementById('score').textContent = 'Score: ' + score;
                 }
-            }
+            });
 
-            // Create new obstacles
+            // Draw and update particles
+            particles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.02;
+
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                ctx.globalAlpha = 1;
+
+                if (p.life <= 0) particles.splice(i, 1);
+            });
+
+            // Spawn enemies
             if (Math.random() < 0.02) {
-                createObstacle();
+                createEnemy();
             }
 
             requestAnimationFrame(gameLoop);
         }
 
-        // Keyboard controls
-        let keys = {};
+        // Controls
         document.addEventListener('keydown', (e) => {
-            keys[e.key] = true;
+            keys[e.key.toLowerCase()] = true;
+            if (e.key === ' ') {
+                e.preventDefault();
+                shoot();
+            }
+            if (e.key.toLowerCase() === 'r' && gameOver) {
+                location.reload();
+            }
         });
+
         document.addEventListener('keyup', (e) => {
-            keys[e.key] = false;
+            keys[e.key.toLowerCase()] = false;
         });
 
         // Move player
         setInterval(() => {
-            if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+            if (keys['arrowleft'] || keys['a']) {
                 player.x = Math.max(0, player.x - player.speed);
             }
-            if (keys['ArrowRight'] || keys['d'] || keys['D']) {
-                player.x = Math.min(canvas.width - player.size, player.x + player.speed);
+            if (keys['arrowright'] || keys['d']) {
+                player.x = Math.min(canvas.width - player.width, player.x + player.speed);
             }
-            if (keys['ArrowUp'] || keys['w'] || keys['W']) {
+            if (keys['arrowup'] || keys['w']) {
                 player.y = Math.max(0, player.y - player.speed);
             }
-            if (keys['ArrowDown'] || keys['s'] || keys['S']) {
-                player.y = Math.min(canvas.height - player.size, player.y + player.speed);
+            if (keys['arrowdown'] || keys['s']) {
+                player.y = Math.min(canvas.height - player.height, player.y + player.speed);
             }
         }, 1000/60);
 
-        // Start game
+        // Start
         gameLoop();
     </script>
 </body>
