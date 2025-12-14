@@ -100,7 +100,7 @@ def main():
     shutil.copy(generated_dir / 'xray-config.json', deploy_dir / 'configs/')
     shutil.copy(generated_dir / 'shadowsocks-config.json', deploy_dir / 'configs/')
     shutil.copy(generated_dir / 'nginx.conf', deploy_dir / 'configs/')
-    shutil.copy(generated_dir / 'docker-compose.yml', deploy_dir/)
+    shutil.copy(generated_dir / 'docker-compose.yml', deploy_dir)
     shutil.copy(generated_dir / 'index.html', deploy_dir / 'www/')
 
     print(f"  ✓ Files copied to {deploy_dir}")
