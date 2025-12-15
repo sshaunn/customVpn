@@ -59,7 +59,6 @@ def main():
 
     domain = config['DOMAIN']
     uuid = config['ADMIN_UUID']
-    ss_port = int(config['SHADOWSOCKS_PORT'])
     reality_dest = config['REALITY_DEST']
     reality_server_names = [config['REALITY_SERVER_NAMES']]
     reality_private_key = config.get('REALITY_PRIVATE_KEY', '')
@@ -101,11 +100,9 @@ def main():
     deploy_dir = Path.home() / 'vpn'
 
     generator = ConfigGenerator(config_dir=config_dir, output_dir=generated_dir)
-    result = generator.generate_all(uuid, ss_port, reality_dest, reality_server_names, reality_private_key, reality_short_ids)
+    result = generator.generate_all(uuid, reality_dest, reality_server_names, reality_private_key, reality_short_ids)
 
     print("  ✓ Xray Reality config")
-    print("  ✓ Shadowsocks config")
-    print(f"\n  Shadowsocks Password: {result['ss_password']}")
 
     # Step 3: Create deployment directory
     print("\n" + "=" * 70)
@@ -118,7 +115,6 @@ def main():
     # Copy files to deployment directory
     import shutil
     shutil.copy(generated_dir / 'xray-config.json', deploy_dir / 'configs/')
-    shutil.copy(generated_dir / 'shadowsocks-config.json', deploy_dir / 'configs/')
     shutil.copy(generated_dir / 'docker-compose.yml', deploy_dir)
 
     print(f"  ✓ Files copied to {deploy_dir}")
@@ -137,8 +133,7 @@ def main():
     print("=" * 70 + "\n")
 
     images = [
-        "ghcr.io/xtls/xray-core:latest",
-        "ghcr.io/shadowsocks/ssserver-rust:latest"
+        "ghcr.io/xtls/xray-core:latest"
     ]
 
     for image in images:
@@ -177,13 +172,11 @@ def main():
 
     client_gen = ClientConfigGenerator(output_dir=project_dir / 'client_configs')
     client_results = client_gen.generate_all_configs(
-        uuid, domain, result['ss_password'], ss_port,
-        reality_server_names[0], reality_public_key, reality_short_ids[0]
+        uuid, domain, reality_server_names[0], reality_public_key, reality_short_ids[0]
     )
 
     print(f"\n  📋 Config files saved to: {project_dir / 'client_configs'}")
     print(f"\n  🔗 VLESS Reality Link:\n  {client_results['vless_link']}")
-    print(f"\n  🔗 Shadowsocks Link:\n  {client_results['ss_link']}")
 
     print("\n" + "=" * 70)
     print("  Deployment Complete!")

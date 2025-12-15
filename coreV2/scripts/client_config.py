@@ -51,29 +51,6 @@ class ClientConfigGenerator:
 
         return vless_link
 
-    def generate_shadowsocks_link(self, password, domain, port, method='2022-blake3-aes-256-gcm'):
-        """
-        Generate Shadowsocks client link
-
-        Args:
-            password: Shadowsocks password (base64 encoded)
-            domain: Server domain
-            port: Server port
-            method: Encryption method
-
-        Returns:
-            str: Shadowsocks URI
-        """
-        import base64
-
-        # SS URI format: ss://base64(method:password)@domain:port#tag
-        auth_string = f"{method}:{password}"
-        encoded_auth = base64.urlsafe_b64encode(auth_string.encode()).decode().rstrip('=')
-
-        ss_link = f"ss://{encoded_auth}@{domain}:{port}#{quote('CustomVPN-SS')}"
-
-        return ss_link
-
     def generate_qr_code(self, data, filename):
         """
         Generate QR code from data
@@ -101,29 +78,23 @@ class ClientConfigGenerator:
 
         return output_file
 
-    def generate_all_configs(self, uuid, domain, ss_password, ss_port, sni, public_key, short_id):
+    def generate_all_configs(self, uuid, domain, sni, public_key, short_id):
         """
-        Generate all client configurations for Reality
+        Generate client configuration for Reality
 
         Args:
             uuid: VLESS user UUID
             domain: Server domain
-            ss_password: Shadowsocks password
-            ss_port: Shadowsocks port
             sni: Reality SNI
             public_key: Reality public key
             short_id: Reality short ID
 
         Returns:
-            dict: Paths and links for all configs
+            dict: Paths and links for config
         """
         # Generate VLESS Reality config
         vless_link = self.generate_vless_link(uuid, domain, sni=sni, public_key=public_key, short_id=short_id)
         vless_qr = self.generate_qr_code(vless_link, 'vless_reality_qr')
-
-        # Generate Shadowsocks config
-        ss_link = self.generate_shadowsocks_link(ss_password, domain, ss_port)
-        ss_qr = self.generate_qr_code(ss_link, 'shadowsocks_qr')
 
         # Save text configs
         config_data = {
@@ -138,13 +109,6 @@ class ClientConfigGenerator:
                 'flow': 'xtls-rprx-vision',
                 'security': 'reality',
                 'network': 'tcp'
-            },
-            'shadowsocks': {
-                'link': ss_link,
-                'server': domain,
-                'port': ss_port,
-                'password': ss_password,
-                'method': '2022-blake3-aes-256-gcm'
             }
         }
 
@@ -156,19 +120,14 @@ class ClientConfigGenerator:
         links_file = self.output_dir / 'links.txt'
         with open(links_file, 'w') as f:
             f.write("=== CustomVPN Client Configuration (Reality) ===\n\n")
-            f.write("VLESS Reality + Vision (Primary - Recommended):\n")
+            f.write("VLESS Reality + Vision:\n")
             f.write(f"{vless_link}\n\n")
-            f.write("Shadowsocks (Fallback):\n")
-            f.write(f"{ss_link}\n\n")
-            f.write("QR Codes:\n")
+            f.write("QR Code:\n")
             f.write(f"  VLESS Reality: {vless_qr}\n")
-            f.write(f"  Shadowsocks: {ss_qr}\n")
 
         return {
             'vless_link': vless_link,
             'vless_qr': vless_qr,
-            'ss_link': ss_link,
-            'ss_qr': ss_qr,
             'config_file': config_file,
             'links_file': links_file
         }
@@ -182,22 +141,18 @@ class ClientConfigGenerator:
         print("\n📱 Mobile Clients:")
         print("  - V2rayNG (Android): Scan VLESS Reality QR code")
         print("  - Shadowrocket (iOS): Scan VLESS Reality QR code")
-        print("  - Or use Shadowsocks QR as fallback")
 
         print("\n💻 Desktop Clients:")
         print("  - V2rayN (Windows): Import VLESS Reality link")
         print("  - NekoRay (Linux/Mac/Win): Import VLESS Reality link")
-        print("  - Clash: Use Shadowsocks config")
 
         print("\n📋 Configuration Files:")
         print(f"  Links: {results['links_file']}")
         print(f"  JSON: {results['config_file']}")
         print(f"  VLESS Reality QR: {results['vless_qr']}")
-        print(f"  SS QR: {results['ss_qr']}")
 
-        print("\n🔗 Quick Links:")
-        print(f"\nVLESS Reality + Vision:\n{results['vless_link']}")
-        print(f"\nShadowsocks:\n{results['ss_link']}")
+        print("\n🔗 Connection Link:")
+        print(f"\n{results['vless_link']}")
 
         print("\n" + "=" * 60)
 

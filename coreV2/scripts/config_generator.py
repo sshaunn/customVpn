@@ -30,11 +30,6 @@ class ConfigGenerator:
         )
 
     @staticmethod
-    def generate_ss_password():
-        """Generate a secure Shadowsocks 2022 password (base64 encoded 32 bytes)"""
-        return base64.b64encode(secrets.token_bytes(32)).decode('ascii')
-
-    @staticmethod
     def generate_reality_keypair():
         """Generate Reality private/public key pair using xray"""
         import subprocess
@@ -69,15 +64,6 @@ class ConfigGenerator:
         output_file.write_text(content)
         return output_file
 
-    def render_shadowsocks_config(self, ss_port, ss_password):
-        """Render Shadowsocks configuration"""
-        template = self.env.get_template('shadowsocks.json.j2')
-        content = template.render(ss_port=ss_port, ss_password=ss_password)
-
-        output_file = self.output_dir / 'shadowsocks-config.json'
-        output_file.write_text(content)
-        return output_file
-
     def copy_static_files(self):
         """Copy static files like docker-compose.yml"""
         import shutil
@@ -89,33 +75,25 @@ class ConfigGenerator:
                 dst = self.output_dir / filename
                 shutil.copy(src, dst)
 
-    def generate_all(self, uuid, ss_port, reality_dest, reality_server_names, reality_private_key, reality_short_ids, ss_password=None):
+    def generate_all(self, uuid, reality_dest, reality_server_names, reality_private_key, reality_short_ids):
         """
         Generate all configuration files for Reality setup
 
         Args:
             uuid: VLESS user UUID
-            ss_port: Shadowsocks port
             reality_dest: Reality destination (e.g., "www.microsoft.com:443")
             reality_server_names: List of server names for Reality SNI
             reality_private_key: Reality private key
             reality_short_ids: List of short IDs for Reality
-            ss_password: Shadowsocks password (auto-generated if None)
 
         Returns:
-            dict: Paths to generated files and generated password
+            dict: Paths to generated files
         """
-        if ss_password is None:
-            ss_password = self.generate_ss_password()
-
         xray_config = self.render_xray_config(uuid, reality_dest, reality_server_names, reality_private_key, reality_short_ids)
-        ss_config = self.render_shadowsocks_config(ss_port, ss_password)
         self.copy_static_files()
 
         return {
-            'xray_config': xray_config,
-            'shadowsocks_config': ss_config,
-            'ss_password': ss_password
+            'xray_config': xray_config
         }
 
 

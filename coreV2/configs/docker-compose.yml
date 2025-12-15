@@ -9,13 +9,3 @@ services:
     volumes:
       - ./configs/xray-config.json:/usr/local/etc/xray/config.json:ro
     command: run -c /usr/local/etc/xray/config.json
-
-  shadowsocks:
-    image: ghcr.io/shadowsocks/ssserver-rust:latest
-    container_name: shadowsocks
-    restart: unless-stopped
-    ports:
-      - "8443:8443/tcp"
-      - "8443:8443/udp"
-    volumes:
-      - ./configs/shadowsocks-config.json:/etc/shadowsocks-rust/config.json:ro
