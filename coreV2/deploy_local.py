@@ -59,13 +59,36 @@ def main():
 
     domain = config['DOMAIN']
     uuid = config['ADMIN_UUID']
-    ws_path = config['WEBSOCKET_PATH']
     ss_port = int(config['SHADOWSOCKS_PORT'])
-    email = config.get('ADMIN_EMAIL', f"{config['VPS_USER']}@{domain}")
+    reality_dest = config['REALITY_DEST']
+    reality_server_names = [config['REALITY_SERVER_NAMES']]
+    reality_private_key = config.get('REALITY_PRIVATE_KEY', '')
+    reality_short_ids = [config.get('REALITY_SHORT_IDS', '')]
+
+    # Generate keys if not provided
+    if not reality_private_key:
+        print("  Generating Reality keys...")
+        private_key, public_key = ConfigGenerator.generate_reality_keypair()
+        if private_key:
+            reality_private_key = private_key
+            print(f"  ✓ Private Key: {private_key}")
+            print(f"  ✓ Public Key: {public_key}")
+            print(f"\n  ⚠️  Add these to config.env:")
+            print(f"     REALITY_PRIVATE_KEY={private_key}")
+            print(f"     REALITY_PUBLIC_KEY={public_key}")
+        else:
+            print("  ✗ Failed to generate keys!")
+            sys.exit(1)
+
+    # Generate shortId if not provided
+    if not reality_short_ids[0]:
+        reality_short_ids = [ConfigGenerator.generate_short_id()]
+        print(f"  ✓ Generated shortId: {reality_short_ids[0]}")
+        print(f"  ⚠️  Add to config.env: REALITY_SHORT_IDS={reality_short_ids[0]}")
 
     print(f"  ✓ Domain: {domain}")
     print(f"  ✓ UUID: {uuid}")
-    print(f"  ✓ WebSocket: {ws_path}")
+    print(f"  ✓ Reality Dest: {reality_dest}")
 
     # Step 2: Generate configurations
     print("\n" + "=" * 70)
@@ -78,11 +101,10 @@ def main():
     deploy_dir = Path.home() / 'vpn'
 
     generator = ConfigGenerator(config_dir=config_dir, output_dir=generated_dir)
-    result = generator.generate_all(uuid, domain, ws_path, ss_port)
+    result = generator.generate_all(uuid, ss_port, reality_dest, reality_server_names, reality_private_key, reality_short_ids)
 
-    print("  ✓ Xray config")
+    print("  ✓ Xray Reality config")
     print("  ✓ Shadowsocks config")
-    print("  ✓ Nginx config")
     print(f"\n  Shadowsocks Password: {result['ss_password']}")
 
     # Step 3: Create deployment directory
@@ -92,61 +114,31 @@ def main():
 
     deploy_dir.mkdir(exist_ok=True)
     (deploy_dir / 'configs').mkdir(exist_ok=True)
-    (deploy_dir / 'www').mkdir(exist_ok=True)
-    (deploy_dir / 'ssl').mkdir(exist_ok=True)
 
     # Copy files to deployment directory
     import shutil
     shutil.copy(generated_dir / 'xray-config.json', deploy_dir / 'configs/')
     shutil.copy(generated_dir / 'shadowsocks-config.json', deploy_dir / 'configs/')
-    shutil.copy(generated_dir / 'nginx.conf', deploy_dir / 'configs/')
     shutil.copy(generated_dir / 'docker-compose.yml', deploy_dir)
-    shutil.copy(generated_dir / 'index.html', deploy_dir / 'www/')
 
     print(f"  ✓ Files copied to {deploy_dir}")
 
-    # Step 4: Install certbot if needed
+    # Step 4: Stop any existing containers
     print("\n" + "=" * 70)
-    print("  Step 4: Installing dependencies")
+    print("  Step 4: Stopping old containers")
     print("=" * 70 + "\n")
 
-    stdout, stderr, code = run_command("sudo apt-get install -y certbot")
-    if code == 0:
-        print("  ✓ Certbot installed")
-
-    # Step 5: Get SSL certificate
-    print("\n" + "=" * 70)
-    print("  Step 5: Obtaining SSL certificate")
-    print("=" * 70 + "\n")
-
-    # Stop any existing containers
     run_command(f"docker compose -f {deploy_dir}/docker-compose.yml down", shell=True)
+    print("  ✓ Old containers stopped")
 
-    # Get certificate
-    cert_cmd = f"sudo certbot certonly --standalone --non-interactive --agree-tos -m {email} -d {domain}"
-    stdout, stderr, code = run_command(cert_cmd, shell=True)
-
-    if code == 0:
-        print("  ✓ SSL certificate obtained")
-
-        # Copy certs
-        run_command(f"sudo cp /etc/letsencrypt/live/{domain}/fullchain.pem {deploy_dir}/ssl/", shell=True)
-        run_command(f"sudo cp /etc/letsencrypt/live/{domain}/privkey.pem {deploy_dir}/ssl/", shell=True)
-        run_command(f"sudo chown -R $USER:$USER {deploy_dir}/ssl/", shell=True)
-        print("  ✓ Certificates copied")
-    else:
-        print(f"  ✗ SSL failed: {stderr}")
-        print("  Continuing anyway...")
-
-    # Step 6: Pull Docker images
+    # Step 5: Pull Docker images
     print("\n" + "=" * 70)
-    print("  Step 6: Pulling Docker images")
+    print("  Step 5: Pulling Docker images")
     print("=" * 70 + "\n")
 
     images = [
         "ghcr.io/xtls/xray-core:latest",
-        "ghcr.io/shadowsocks/ssserver-rust:latest",
-        "nginx:alpine"
+        "ghcr.io/shadowsocks/ssserver-rust:latest"
     ]
 
     for image in images:
@@ -154,9 +146,9 @@ def main():
         if code == 0:
             print(f"  ✓ {image}")
 
-    # Step 7: Start containers
+    # Step 6: Start containers
     print("\n" + "=" * 70)
-    print("  Step 7: Starting containers")
+    print("  Step 6: Starting containers")
     print("=" * 70 + "\n")
 
     stdout, stderr, code = run_command(f"docker compose -f {deploy_dir}/docker-compose.yml up -d", shell=True)
@@ -172,22 +164,31 @@ def main():
     else:
         print(f"  ✗ Failed: {stderr}")
 
-    # Step 8: Generate client configs
+    # Step 7: Generate client configs
     print("\n" + "=" * 70)
-    print("  Step 8: Generating Client Configurations")
+    print("  Step 7: Generating Client Configurations")
     print("=" * 70 + "\n")
 
+    # Get public key from config or generate
+    reality_public_key = config.get('REALITY_PUBLIC_KEY', '')
+    if not reality_public_key and reality_private_key:
+        # Try to extract from generated keys
+        _, reality_public_key = ConfigGenerator.generate_reality_keypair()
+
     client_gen = ClientConfigGenerator(output_dir=project_dir / 'client_configs')
-    client_results = client_gen.generate_all_configs(uuid, domain, ws_path, result['ss_password'], ss_port)
+    client_results = client_gen.generate_all_configs(
+        uuid, domain, result['ss_password'], ss_port,
+        reality_server_names[0], reality_public_key, reality_short_ids[0]
+    )
 
     print(f"\n  📋 Config files saved to: {project_dir / 'client_configs'}")
-    print(f"\n  🔗 VLESS Link:\n  {client_results['vless_link']}")
+    print(f"\n  🔗 VLESS Reality Link:\n  {client_results['vless_link']}")
     print(f"\n  🔗 Shadowsocks Link:\n  {client_results['ss_link']}")
 
     print("\n" + "=" * 70)
     print("  Deployment Complete!")
     print("=" * 70)
-    print(f"\n  Website: https://{domain}")
+    print(f"\n  Server: {domain}:443 (Reality)")
     print("  All systems ready!")
 
 

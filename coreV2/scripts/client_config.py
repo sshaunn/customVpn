@@ -20,31 +20,33 @@ class ClientConfigGenerator:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def generate_vless_link(self, uuid, domain, ws_path, port=443, tls=True):
+    def generate_vless_link(self, uuid, domain, port=443, sni=None, public_key=None, short_id=None, fp='chrome'):
         """
-        Generate VLESS client link
+        Generate VLESS Reality client link
 
         Args:
             uuid: User UUID
             domain: Server domain
-            ws_path: WebSocket path
             port: Server port (default 443)
-            tls: Enable TLS (default True)
+            sni: Server Name Indication for Reality
+            public_key: Reality public key
+            short_id: Reality short ID
+            fp: TLS fingerprint (default 'chrome')
 
         Returns:
-            str: VLESS URI
+            str: VLESS URI with Reality
         """
-        security = "tls" if tls else "none"
-        encoded_path = quote(ws_path, safe='')
-
-        # VLESS URI format: vless://uuid@domain:port?parameters#tag
+        # VLESS Reality URI format: vless://uuid@domain:port?parameters#tag
         vless_link = (
             f"vless://{uuid}@{domain}:{port}"
-            f"?type=ws"
-            f"&security={security}"
-            f"&path={encoded_path}"
-            f"&host={domain}"
-            f"#{quote('CustomVPN-VLESS')}"
+            f"?type=tcp"
+            f"&security=reality"
+            f"&pbk={public_key}"
+            f"&fp={fp}"
+            f"&sni={sni}"
+            f"&sid={short_id}"
+            f"&flow=xtls-rprx-vision"
+            f"#{quote('CustomVPN-Reality')}"
         )
 
         return vless_link
@@ -99,23 +101,25 @@ class ClientConfigGenerator:
 
         return output_file
 
-    def generate_all_configs(self, uuid, domain, ws_path, ss_password, ss_port=8388):
+    def generate_all_configs(self, uuid, domain, ss_password, ss_port, sni, public_key, short_id):
         """
-        Generate all client configurations
+        Generate all client configurations for Reality
 
         Args:
             uuid: VLESS user UUID
             domain: Server domain
-            ws_path: WebSocket path
             ss_password: Shadowsocks password
             ss_port: Shadowsocks port
+            sni: Reality SNI
+            public_key: Reality public key
+            short_id: Reality short ID
 
         Returns:
             dict: Paths and links for all configs
         """
-        # Generate VLESS config
-        vless_link = self.generate_vless_link(uuid, domain, ws_path)
-        vless_qr = self.generate_qr_code(vless_link, 'vless_qr')
+        # Generate VLESS Reality config
+        vless_link = self.generate_vless_link(uuid, domain, sni=sni, public_key=public_key, short_id=short_id)
+        vless_qr = self.generate_qr_code(vless_link, 'vless_reality_qr')
 
         # Generate Shadowsocks config
         ss_link = self.generate_shadowsocks_link(ss_password, domain, ss_port)
@@ -123,14 +127,17 @@ class ClientConfigGenerator:
 
         # Save text configs
         config_data = {
-            'vless': {
+            'vless_reality': {
                 'link': vless_link,
                 'uuid': uuid,
                 'domain': domain,
                 'port': 443,
-                'path': ws_path,
-                'tls': True,
-                'network': 'ws'
+                'sni': sni,
+                'public_key': public_key,
+                'short_id': short_id,
+                'flow': 'xtls-rprx-vision',
+                'security': 'reality',
+                'network': 'tcp'
             },
             'shadowsocks': {
                 'link': ss_link,
@@ -148,13 +155,13 @@ class ClientConfigGenerator:
         # Save links to text file
         links_file = self.output_dir / 'links.txt'
         with open(links_file, 'w') as f:
-            f.write("=== CustomVPN Client Configuration ===\n\n")
-            f.write("VLESS (Primary - Recommended):\n")
+            f.write("=== CustomVPN Client Configuration (Reality) ===\n\n")
+            f.write("VLESS Reality + Vision (Primary - Recommended):\n")
             f.write(f"{vless_link}\n\n")
             f.write("Shadowsocks (Fallback):\n")
             f.write(f"{ss_link}\n\n")
             f.write("QR Codes:\n")
-            f.write(f"  VLESS: {vless_qr}\n")
+            f.write(f"  VLESS Reality: {vless_qr}\n")
             f.write(f"  Shadowsocks: {ss_qr}\n")
 
         return {
@@ -169,27 +176,27 @@ class ClientConfigGenerator:
     def print_client_instructions(self, results):
         """Print client setup instructions"""
         print("\n" + "=" * 60)
-        print("Client Configuration Ready")
+        print("Client Configuration Ready (Reality)")
         print("=" * 60)
 
         print("\n📱 Mobile Clients:")
-        print("  - V2rayNG (Android): Scan VLESS QR code")
-        print("  - Shadowrocket (iOS): Scan VLESS QR code")
+        print("  - V2rayNG (Android): Scan VLESS Reality QR code")
+        print("  - Shadowrocket (iOS): Scan VLESS Reality QR code")
         print("  - Or use Shadowsocks QR as fallback")
 
         print("\n💻 Desktop Clients:")
-        print("  - V2rayN (Windows): Import VLESS link")
-        print("  - Qv2ray (Linux/Mac): Import VLESS link")
+        print("  - V2rayN (Windows): Import VLESS Reality link")
+        print("  - NekoRay (Linux/Mac/Win): Import VLESS Reality link")
         print("  - Clash: Use Shadowsocks config")
 
         print("\n📋 Configuration Files:")
         print(f"  Links: {results['links_file']}")
         print(f"  JSON: {results['config_file']}")
-        print(f"  VLESS QR: {results['vless_qr']}")
+        print(f"  VLESS Reality QR: {results['vless_qr']}")
         print(f"  SS QR: {results['ss_qr']}")
 
         print("\n🔗 Quick Links:")
-        print(f"\nVLESS:\n{results['vless_link']}")
+        print(f"\nVLESS Reality + Vision:\n{results['vless_link']}")
         print(f"\nShadowsocks:\n{results['ss_link']}")
 
         print("\n" + "=" * 60)
