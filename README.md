@@ -1,41 +1,55 @@
-# CustomVPN V2
+# CustomVPN - VLESS Reality
 
-**Status**: V2 Rewrite in Progress
+Stealth VPN for bypassing GFW using VLESS + Reality + Vision protocol.
 
-Clean Python-based VPN deployment for bypassing GFW.
+## Setup
 
-## Current Setup
-- **VPS**: Bandwagon 80.251.215.127 (user: shaun)
-- **Domain**: shaunstudio.vip
-- **Stack**: Python 3, Docker, Xray, Shadowsocks
-- **SSH**: `ssh customvpn`
+**VPS**: Bandwagon 80.251.215.127
+**Domain**: shaunstudio.vip
+**Protocol**: VLESS + Reality + Vision (mimics Microsoft)
+**SSH**: `ssh customvpn`
 
 ## Project Structure
 
 ```
 customVpn/
-├── coreV2/              # V2 implementation (active)
-│   ├── TASKS_V2.md      # 14 tasks breakdown
-│   ├── CHANGELOG_V2.md  # V2 changelog
-│   ├── scripts/         # Python deployment scripts
-│   ├── configs/         # Config templates
-│   ├── docker/          # Dockerfiles
-│   └── tests/           # Unit tests
-├── config.env           # VPS credentials
-└── README.md            # This file
+├── config.env              # VPN configuration
+├── vless_reality_qr.png    # Client QR code
+└── coreV2/
+    ├── configs/            # Xray templates
+    ├── scripts/            # Python deployment tools
+    ├── deploy.py           # Local → VPS deployment
+    └── deploy_local.py     # VPS-side deployment
 ```
 
-## Quick Start (V2)
+## Deployment
 
+### From Local Machine
 ```bash
 cd coreV2
-# TODO: Coming soon
 python deploy.py
 ```
 
-## Old Version (V1)
+### On VPS Directly
+```bash
+ssh customvpn
+cd customVpn/coreV2
+source venv/bin/activate
+python deploy_local.py
+```
 
-The previous implementation has been cleaned up. See git history for reference.
+## Client Setup
+
+1. Scan QR code: `vless_reality_qr.png`
+2. Import to v2rayNG (Android) or V2rayN (Windows)
+3. Connect and enjoy
+
+## How It Works
+
+Reality makes your VPN traffic look like legitimate HTTPS to Microsoft:
+- GFW sees: Valid Microsoft certificate
+- GFW probes: Get real Microsoft website
+- Your traffic: Fully encrypted and undetectable
 
 ## License
 
