@@ -3,7 +3,9 @@ services:
     image: ghcr.io/xtls/xray-core:latest
     container_name: xray
     restart: unless-stopped
-    network_mode: host
+    ports:
+      - "443:443/tcp"
+      - "443:443/udp"
     volumes:
       - ./configs/xray-config.json:/usr/local/etc/xray/config.json:ro
     command: run -c /usr/local/etc/xray/config.json
